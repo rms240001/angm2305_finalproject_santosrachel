@@ -1,0 +1,46 @@
+# angm2305_finalproject_santosrachel
+This is my final project for Programming for Digital Arts.
+
+# Pixel Art Grid Editor
+
+## Repository
+https://github.com/rms240001/angm2305_finalproject_santosrachel.git
+
+## Description
+Given a NxN matrix, you can create pixel art with given color palette... free to create whatever 2D are you want (can extend to a lot of use, like creating pixel art character sprites for game desing, etc.) Many games have the style of pixelated sprites so this tool would help create these assets for these style of games. 
+
+## Features
+- Choose canvas size
+	- Have 3 options for a pixelated canvas 
+- Can pick different tools to paint to canvas
+	- Can have different options of paint brushes for one pixel, spray can for multiple pixels and an eraser to erase pixels
+- Pick various colors to paint on canvas
+	- User can pick up to 3 colors to use to paint on the canvas
+
+## Challenges
+- Find correct Python libraries for development
+- How to manage state of each grid coordinate
+- How to bind keys to paint on canvas
+- How to export/saving the art that will be made
+
+## Outcomes
+Ideal Outcome:
+- Can pick multiple canvas sizes, use any colors they want through hex code as well, use multiple painting tools, and able to export the art
+
+Minimal Viable Outcome:
+- Would like for user for to pick canvas size and pick 3 colors, using one tool to paint on the canvas
+
+## Milestones
+
+- Week 1
+  1. Able to generate canvas
+  2. Create simple UI to interacte with
+
+- Week 2
+  1. Add in tool functionality 
+  2. Able to draw on canvas with one color
+
+- Week N (Final)
+  1. Able to draw on canvas with multiple colors
+  2. Adding export functionality 
+
