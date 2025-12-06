@@ -1,14 +1,35 @@
 import pygame
+import sys
 
 def main():
-    """
-    Initializes pygame, creates window, and runs the main game loop.
-    """
-    # TODO: Initialize game, display user with simple UI to interact with
+    pygame.init()
+    pygame.display.set_caption("Pixel Art Grid Editor")
 
-    # Ask user the canvas size they want to use, accepts user input
-    
-    # Create canvas size based on user selected option
+    resolution = (1920, 1080)
+    screen = pygame.display.set_mode(resolution)
+
+    running = True
+    while running:
+        # --- Event handling ---
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
+        # --- Drawing code ---
+        screen.fill((255, 255, 255))
+
+        font = pygame.font.SysFont(None, 48)
+        text_surface = font.render("Welcome to Pixel Art Editor!", True, (0, 0, 0))
+        text_rect = text_surface.get_rect(center=screen.get_rect().center)
+        screen.blit(text_surface, text_rect)
+
+        pygame.display.flip()
+
+    pygame.quit()
+    sys.exit()
 
 if __name__ == "__main__":
     main()
