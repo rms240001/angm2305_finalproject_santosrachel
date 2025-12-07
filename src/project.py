@@ -1,11 +1,10 @@
 import pygame
 import sys
 
-# Possible states / scenes
-# TODO: add canvas editor state and possibly a "save image" one
+# States
 STATE_WELCOME = "welcome"
-STATE_CONFIG   = "config"
-STATE_EDITOR    = "editor"
+STATE_CONFIG  = "config"
+STATE_EDITOR  = "editor"
 
 CANVAS_OPTIONS = {
     pygame.K_1: (20, 20),
@@ -13,68 +12,89 @@ CANVAS_OPTIONS = {
     pygame.K_3: (100, 100),
 }
 
+UI_PANEL_WIDTH = 200   # width in screen pixels of the left UI panel
+CELL_SIZE = 16         # each “pixel” on canvas is 16×16 on screen — adjust as you like
+
 def draw_welcome(screen):
     screen.fill((255, 255, 255))
     font = pygame.font.SysFont(None, 72)
-    title_surf = font.render("Welcome to Pixel Art Editor!", True, (0, 0, 0))
-    title_rect = title_surf.get_rect(center=screen.get_rect().center)
-    screen.blit(title_surf, title_rect)
+    title = font.render("Welcome to Pixel Art Editor!", True, (0, 0, 0))
+    title_rect = title.get_rect(center=screen.get_rect().center)
+    screen.blit(title, title_rect)
 
     small_font = pygame.font.SysFont(None, 36)
-    prompt_surf = small_font.render("Press ENTER to continue...", True, (0, 0, 0))
-
-    prompt_rect = prompt_surf.get_rect(
+    prompt = small_font.render("Press ENTER to continue...", True, (0, 0, 0))
+    prompt_rect = prompt.get_rect(
         center=(screen.get_rect().centerx,
                 screen.get_rect().centery + 100)
     )
-    
-    screen.blit(prompt_surf, prompt_rect)
+    screen.blit(prompt, prompt_rect)
 
 def draw_config(screen):
     screen.fill((240, 240, 240))
     font = pygame.font.SysFont(None, 48)
-    title_text = "Select your canvas size!"
-    title_surf = font.render(title_text, True, (0, 0, 0))
-    title_rect = title_surf.get_rect(center=(screen.get_rect().centerx,
-                                             screen.get_rect().centery - 100))
-    screen.blit(title_surf, title_rect)
+    title = font.render("Select canvas size:", True, (0, 0, 0))
+    screen_center = screen.get_rect().center
+    title_rect = title.get_rect(center=(screen_center[0], screen_center[1] - 60))
+    screen.blit(title, title_rect)
 
-    option_font = pygame.font.SysFont(None, 36)
-    options = [
-        "1) 20 × 20 pixels",
-        "2) 50 × 50 pixels",
-        "3) 100 × 100 pixels",
-    ]
-
-    # formatting
-    spacing_between_title_and_options = 60
-    line_spacing = 50
-
-    start_y = title_rect.bottom + spacing_between_title_and_options
-    for i, opt in enumerate(options):
-        surf = option_font.render(opt, True, (0, 0, 0))
-        rect = surf.get_rect(center=(screen.get_rect().centerx,
-                    start_y + i * line_spacing))
+    options = ["1) 20 × 20", "2) 50 × 50", "3) 100 × 100"]
+    opt_font = pygame.font.SysFont(None, 36)
+    for i, text in enumerate(options):
+        surf = opt_font.render(text, True, (0, 0, 0))
+        rect = surf.get_rect(center=(screen_center[0], screen_center[1] + i * 50))
         screen.blit(surf, rect)
 
-# TODO: rename after more logic has been implemented
-def draw_editor_placeholder(screen, canvas_size):
-    screen.fill((255, 255, 255))
-    font = pygame.font.SysFont(None, 48)
-    # replace later, just to test
-    msg = f"Canvas size: {canvas_size[0]} × {canvas_size[1]}"
-    surf = font.render(msg, True, (0,0,0))
-    rect = surf.get_rect(center=screen.get_rect().center)
-    screen.blit(surf, rect)
+def draw_editor(screen, canvas_size, grid_data, current_color):
+    screen.fill((200, 200, 200))  # background for UI + canvas
+
+    screen_w, screen_h = screen.get_size()
+
+    # --- Draw UI panel (left) ---
+    ui_rect = pygame.Rect(0, 0, UI_PANEL_WIDTH, screen_h)
+    pygame.draw.rect(screen, (180, 180, 180), ui_rect)
+
+    # Placeholder UI text
+    ui_font = pygame.font.SysFont(None, 24)
+    ui_text = ui_font.render("UI Panel (colors/tools)", True, (0, 0, 0))
+    screen.blit(ui_text, (10, 10))
+
+    # Optionally show current color
+    pygame.draw.rect(screen, current_color, (10, 40, 50, 50))  # swatch
+
+    # --- Draw canvas area (right) ---
+    canvas_origin_x = UI_PANEL_WIDTH
+    cols, rows = canvas_size
+
+    for row in range(rows):
+        for col in range(cols):
+            # compute rectangle for each cell
+            x = canvas_origin_x + col * CELL_SIZE
+            y = row * CELL_SIZE
+            rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
+
+            # background
+            pygame.draw.rect(screen, (255, 255, 255), rect)
+
+            # filled pixel if exists in data
+            color = grid_data[row][col]
+            if color:
+                pygame.draw.rect(screen, color, rect)
+
+            # grid border
+            pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 def main():
     pygame.init()
     pygame.display.set_caption("Pixel Art Grid Editor")
 
-    resolution = (1920, 1080)  # testing resolution, change to 1920x1080 later
+    resolution = (800, 600)
     screen = pygame.display.set_mode(resolution)
 
     state = STATE_WELCOME
+    selected_canvas = None
+    grid_data = None
+    current_color = (0, 0, 0)  # default paint color: black
 
     running = True
     while running:
@@ -85,22 +105,32 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
                 elif state == STATE_WELCOME and event.key == pygame.K_RETURN:
                     state = STATE_CONFIG
+                elif state == STATE_CONFIG and event.key in CANVAS_OPTIONS:
+                    selected_canvas = CANVAS_OPTIONS[event.key]
+                    cols, rows = selected_canvas
+                    grid_data = [[None for _ in range(cols)] for _ in range(rows)]
+                    state = STATE_EDITOR
 
-                elif state == STATE_CONFIG:
-                    if event.key in CANVAS_OPTIONS:
-                        selected_canvas = CANVAS_OPTIONS[event.key]
-                        state = STATE_EDITOR
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if state == STATE_EDITOR and selected_canvas:
+                    mx, my = event.pos
+                    # if click in canvas area
+                    if mx >= UI_PANEL_WIDTH:
+                        col = (mx - UI_PANEL_WIDTH) // CELL_SIZE
+                        row = my // CELL_SIZE
+                        if 0 <= col < selected_canvas[0] and 0 <= row < selected_canvas[1]:
+                            # set the pixel to current color
+                            grid_data[row][col] = current_color
 
-        # Render screen based on state
+        # ---- Drawing ----
         if state == STATE_WELCOME:
             draw_welcome(screen)
         elif state == STATE_CONFIG:
             draw_config(screen)
-        elif state == STATE_EDITOR:
-            draw_editor_placeholder(screen, selected_canvas)
+        elif state == STATE_EDITOR and selected_canvas:
+            draw_editor(screen, selected_canvas, grid_data, current_color)
 
         pygame.display.flip()
 
