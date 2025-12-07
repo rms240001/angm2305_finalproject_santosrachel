@@ -12,8 +12,8 @@ CANVAS_OPTIONS = {
     pygame.K_3: (100, 100),
 }
 
-UI_PANEL_WIDTH = 200   # width in screen pixels of the left UI panel
-CELL_SIZE = 16         # each “pixel” on canvas is 16×16 on screen — adjust as you like
+UI_PANEL_WIDTH = 200
+CELL_SIZE = 16 # TODO: this may need to change soon?
 
 def draw_welcome(screen):
     screen.fill((255, 255, 255))
@@ -54,13 +54,11 @@ def draw_editor(screen, canvas_size, grid_data, current_color):
     ui_rect = pygame.Rect(0, 0, UI_PANEL_WIDTH, screen_h)
     pygame.draw.rect(screen, (180, 180, 180), ui_rect)
 
-    # Placeholder UI text
     ui_font = pygame.font.SysFont(None, 24)
     ui_text = ui_font.render("UI Panel (colors/tools)", True, (0, 0, 0))
     screen.blit(ui_text, (10, 10))
 
-    # Optionally show current color
-    pygame.draw.rect(screen, current_color, (10, 40, 50, 50))  # swatch
+    pygame.draw.rect(screen, current_color, (10, 40, 50, 50))
 
     # --- Draw canvas area (right) ---
     canvas_origin_x = UI_PANEL_WIDTH
@@ -68,20 +66,16 @@ def draw_editor(screen, canvas_size, grid_data, current_color):
 
     for row in range(rows):
         for col in range(cols):
-            # compute rectangle for each cell
             x = canvas_origin_x + col * CELL_SIZE
             y = row * CELL_SIZE
             rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
 
-            # background
             pygame.draw.rect(screen, (255, 255, 255), rect)
 
-            # filled pixel if exists in data
             color = grid_data[row][col]
             if color:
                 pygame.draw.rect(screen, color, rect)
 
-            # grid border
             pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 def main():
