@@ -45,6 +45,7 @@ def draw_config(screen):
         rect = surf.get_rect(center=(screen_center[0], screen_center[1] + i * 50))
         screen.blit(surf, rect)
 
+# TODO: does not work in 1920x1080
 def draw_editor(screen, canvas_size, grid_data, current_color):
     screen.fill((200, 200, 200))  # background for UI + canvas
 
