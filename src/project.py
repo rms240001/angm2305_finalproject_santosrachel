@@ -15,6 +15,14 @@ CANVAS_OPTIONS = {
 UI_PANEL_WIDTH = 200
 CELL_SIZE = 16 # TODO: this may need to change soon?
 
+PALETTE = [
+    (0,   0,   0),    # black
+    (255, 0,   0),    # red
+    (0,   255, 0),    # green
+    (0,   0,   255),  # blue
+    # TODO: add more as needed
+]
+
 def draw_welcome(screen):
     screen.fill((255, 255, 255))
     font = pygame.font.SysFont(None, 72)
@@ -46,8 +54,8 @@ def draw_config(screen):
         screen.blit(surf, rect)
 
 # TODO: does not work in 1920x1080
-def draw_editor(screen, canvas_size, grid_data, current_color):
-    screen.fill((200, 200, 200))  # background for UI + canvas
+def draw_editor(screen, canvas_size, grid_data, current_color, palette):
+    screen.fill((200, 200, 200))
 
     screen_w, screen_h = screen.get_size()
 
@@ -59,9 +67,20 @@ def draw_editor(screen, canvas_size, grid_data, current_color):
     ui_text = ui_font.render("UI Panel (colors/tools)", True, (0, 0, 0))
     screen.blit(ui_text, (10, 10))
 
-    pygame.draw.rect(screen, current_color, (10, 40, 50, 50))
+    # Swatch selection
+    swatch_size = 30
+    swatch_padding = 10
+    for i, col in enumerate(palette):
+        x = 10
+        y = 40 + i * (swatch_size + swatch_padding)
+        swatch_rect = pygame.Rect(x, y, swatch_size, swatch_size)
+        pygame.draw.rect(screen, col, swatch_rect)
+        if col == current_color:
+            pygame.draw.rect(screen, (255, 255, 255), swatch_rect, 3)
+        else:
+            pygame.draw.rect(screen, (0, 0, 0), swatch_rect, 1)
 
-    # --- Draw canvas area (right) ---
+    # Draw canvas area (right / rest of window)
     canvas_origin_x = UI_PANEL_WIDTH
     cols, rows = canvas_size
 
@@ -89,7 +108,7 @@ def main():
     state = STATE_WELCOME
     selected_canvas = None
     grid_data = None
-    current_color = (0, 0, 0)  # default paint color: black
+    current_color = PALETTE[0]  # default to black
 
     running = True
     while running:
@@ -111,13 +130,24 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if state == STATE_EDITOR and selected_canvas:
                     mx, my = event.pos
-                    # if click in canvas area
-                    if mx >= UI_PANEL_WIDTH:
-                        col = (mx - UI_PANEL_WIDTH) // CELL_SIZE
-                        row = my // CELL_SIZE
-                        if 0 <= col < selected_canvas[0] and 0 <= row < selected_canvas[1]:
-                            # set the pixel to current color
-                            grid_data[row][col] = current_color
+                    
+                    if state == STATE_EDITOR:
+                        swatch_size = 30
+                        swatch_padding = 10
+                        for i, col in enumerate(PALETTE):
+                            x = 10
+                            y = 40 + i * (swatch_size + swatch_padding)
+                            swatch_rect = pygame.Rect(x, y, swatch_size, swatch_size)
+                            if swatch_rect.collidepoint(mx, my):
+                                current_color = col
+                                break
+                        else:
+                            # If not clicking a swatch, check if click is in canvas area
+                            if mx >= UI_PANEL_WIDTH:
+                                col = (mx - UI_PANEL_WIDTH) // CELL_SIZE
+                                row = my // CELL_SIZE
+                                if 0 <= col < selected_canvas[0] and 0 <= row < selected_canvas[1]:
+                                    grid_data[row][col] = current_color
 
         # ---- Drawing ----
         if state == STATE_WELCOME:
@@ -125,7 +155,7 @@ def main():
         elif state == STATE_CONFIG:
             draw_config(screen)
         elif state == STATE_EDITOR and selected_canvas:
-            draw_editor(screen, selected_canvas, grid_data, current_color)
+            draw_editor(screen, selected_canvas, grid_data, current_color, PALETTE)
 
         pygame.display.flip()
 
