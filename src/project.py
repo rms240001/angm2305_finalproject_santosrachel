@@ -32,7 +32,7 @@ PALETTE = [
 TOOL_COLOR = "color"
 TOOL_ERASER = "eraser"
 
-def draw_welcome(screen):
+def draw_welcome_screen(screen):
     screen.fill((255, 255, 255))
     font = pygame.font.SysFont(None, 72)
     title = font.render("Welcome to Pixel Art Editor!", True, (0, 0, 0))
@@ -47,7 +47,7 @@ def draw_welcome(screen):
     )
     screen.blit(prompt, prompt_rect)
 
-def draw_config(screen):
+def draw_canvas_size_selector_screen(screen):
     screen.fill((240, 240, 240))
     font = pygame.font.SysFont(None, 48)
     title = font.render("Select canvas size:", True, (0, 0, 0))
@@ -55,6 +55,8 @@ def draw_config(screen):
     title_rect = title.get_rect(center=(screen_center[0], screen_center[1] - 60))
     screen.blit(title, title_rect)
 
+    # Note: Make sure to test these sizes and make sure they work for different resolutions
+    # Was having issues with this earlier
     options = ["1) 30 × 30", "2) 50 × 50", "3) 80 × 50"]
     opt_font = pygame.font.SysFont(None, 36)
     for i, text in enumerate(options):
@@ -62,12 +64,12 @@ def draw_config(screen):
         rect = surf.get_rect(center=(screen_center[0], screen_center[1] + i * 50))
         screen.blit(surf, rect)
 
-def draw_editor(screen, canvas_size, grid_data, current_tool, current_color, palette):
+def draw_grid_editor(screen, canvas_size, grid_data, current_tool, current_color, palette):
     screen.fill((200, 200, 200))
 
     screen_w, screen_h = screen.get_size()
 
-    # --- Draw UI panel (left) ---
+    # Draw UI panel (left)
     ui_rect = pygame.Rect(0, 0, UI_PANEL_WIDTH, screen_h)
     pygame.draw.rect(screen, (180, 180, 180), ui_rect)
 
@@ -113,7 +115,7 @@ def draw_editor(screen, canvas_size, grid_data, current_tool, current_color, pal
     btn_label = ui_font.render("Save as PNG", True, (0, 0, 0))
     screen.blit(btn_label, btn_label.get_rect(center=save_btn_rect.center))
 
-    # --- Draw Canvas panel (right) ---
+    # Draw Canvas panel (right)
     canvas_origin_x = UI_PANEL_WIDTH
     cols, rows = canvas_size
     for row in range(rows):
@@ -130,43 +132,45 @@ def draw_editor(screen, canvas_size, grid_data, current_tool, current_color, pal
 
     return clear_btn_rect, save_btn_rect
 
-def prompt_filename(screen):
+def enter_filename(screen):
     pygame.font.init()
     font = pygame.font.SysFont(None, 36)
-    input_str = ""
+    user_input = ""
     prompt = "Enter file name (no extension): "
     clock = pygame.time.Clock()
 
     while True:
-        for ev in pygame.event.get():
-            if ev.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 return None
-            elif ev.type == pygame.KEYDOWN:
-                if ev.key == pygame.K_ESCAPE:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
                     return None
-                elif ev.key == pygame.K_RETURN:
-                    return input_str.strip()
-                elif ev.key == pygame.K_BACKSPACE:
-                    input_str = input_str[:-1]
+                elif event.key == pygame.K_RETURN:
+                    return user_input.strip()
+                elif event.key == pygame.K_BACKSPACE:
+                    user_input = user_input[:-1]
                 else:
-                    if ev.unicode.isprintable():
-                        input_str += ev.unicode
+                    if event.unicode.isprintable():
+                        user_input += event.unicode
 
         screen.fill((50, 50, 50))
-        prompt_surf = font.render(prompt + input_str, True, (255, 255, 255))
+        prompt_surf = font.render(prompt + user_input, True, (255, 255, 255))
         screen.blit(prompt_surf, (50, screen.get_height() // 2))
         pygame.display.flip()
         clock.tick(30)
 
+# https://stackoverflow.com/questions/35851281/python-finding-the-users-downloads-folder
 def get_downloads_folder():
     home = Path.home()
-    dl = home / "Downloads"
-    return dl
+    user_downloads = home / "Downloads"
+    return user_downloads
 
 def main():
     pygame.init()
     pygame.display.set_caption("Pixel Art Grid Editor")
 
+    # https://www.pygame.org/docs/ref/display.html
     resolution_flags = pygame.FULLSCREEN
 
     resolution = (1920, 1080)
@@ -208,8 +212,9 @@ def main():
                         continue
 
                     # Save Button Logic
+                    # Documents for image saving: https://www.pygame.org/docs/ref/image.html 
                     if save_button_rect and save_button_rect.collidepoint(mx, my):
-                        fname = prompt_filename(screen)
+                        fname = enter_filename(screen)
                         if fname:
                             dl = get_downloads_folder()
                             out_path = dl / f"{fname}.png"
@@ -262,13 +267,13 @@ def main():
                                     elif current_tool == TOOL_ERASER:
                                         grid_data[row_i][col_i] = None
 
-        # Drawing
+        # Display correct views based on state
         if state == STATE_WELCOME:
-            draw_welcome(screen)
+            draw_welcome_screen(screen)
         elif state == STATE_CONFIG:
-            draw_config(screen)
+            draw_canvas_size_selector_screen(screen)
         elif state == STATE_EDITOR and selected_canvas:
-            clear_button_rect, save_button_rect = draw_editor(
+            clear_button_rect, save_button_rect = draw_grid_editor(
                 screen, selected_canvas, grid_data,
                 current_tool, current_color, PALETTE
             )
