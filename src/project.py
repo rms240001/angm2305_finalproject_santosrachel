@@ -8,19 +8,25 @@ STATE_CONFIG  = "config"
 STATE_EDITOR  = "editor"
 
 CANVAS_OPTIONS = {
-    pygame.K_1: (20, 20),
+    pygame.K_1: (30, 30),
     pygame.K_2: (50, 50),
-    pygame.K_3: (100, 100),
+    pygame.K_3: (80, 50),
 }
 
 UI_PANEL_WIDTH = 200
 CELL_SIZE = 16
 
 PALETTE = [
-    (0,   0,   0),    # black
-    (255, 0,   0),    # red
-    (0,   255, 0),    # green
-    (0,   0,   255),  # blue
+    (0,   0,   0),      # black
+    (255,   0,   0),    # red
+    (255, 165,   0),    # orange
+    (255, 255,   0),    # yellow
+    (0,   255,   0),    # green
+    (0,   255, 255),    # cyan / light-blue
+    (0,     0, 255),    # blue
+    (128,   0, 128),    # purple
+    (255, 192, 203),    # pink
+    (128, 128, 128),    # gray
 ]
 
 TOOL_COLOR = "color"
@@ -49,7 +55,7 @@ def draw_config(screen):
     title_rect = title.get_rect(center=(screen_center[0], screen_center[1] - 60))
     screen.blit(title, title_rect)
 
-    options = ["1) 20 × 20", "2) 50 × 50", "3) 100 × 100"]
+    options = ["1) 30 × 30", "2) 50 × 50", "3) 80 × 50"]
     opt_font = pygame.font.SysFont(None, 36)
     for i, text in enumerate(options):
         surf = opt_font.render(text, True, (0, 0, 0))
@@ -161,8 +167,10 @@ def main():
     pygame.init()
     pygame.display.set_caption("Pixel Art Grid Editor")
 
-    resolution = (800, 600)
-    screen = pygame.display.set_mode(resolution)
+    resolution_flags = pygame.FULLSCREEN
+
+    resolution = (1920, 1080)
+    screen = pygame.display.set_mode(resolution, resolution_flags)
 
     state = STATE_WELCOME
     selected_canvas = None
