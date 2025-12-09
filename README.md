@@ -1,14 +1,14 @@
 # Pixel Art Grid Editor
 
-Commentary Demonstration Video: (link here)
+Commentary Demonstration Video: (https://youtu.be/WwsAnfaxZnI)
 
-GitHub Repository Link: (link here)
+GitHub Repository Link: (https://github.com/rms240001/angm2305_finalproject_santosrachel)
 
-# Project Description
+## Project Description
 
 This is a grid editor where users can select from various canvas sizes to draw sprites for their games/art. Firstly, you can select from various canvas sizes. Next it allows people the ability to draw on the canvas with different colors and to erase OR clear the entire canvas in case you want to start over. After you are done, you can even save the canvas you worked on as an PNG in your files.
 
-# Project Structure
+## Project Structure
 
 ```
 |   requirements.txt
