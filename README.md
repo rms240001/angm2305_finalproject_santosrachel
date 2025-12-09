@@ -22,9 +22,13 @@ This is a grid editor where users can select from various canvas sizes to draw s
 This .py file contains all the logic for my project, from the main logic loop to functions that help with the different features included in my project.
 
 draw_welcome_screen() - this is the screen the user is first presented with
+
 draw_canvas_size_selector_screen() - this function helps present the user with 3 different canvas sizes to choose from (waits on user input to move on)
+
 draw_grid_editor() - most critical function; holds the logic for the user being able to select various colors/tools to use on the canvas, being able to draw on the canvas, and other quality of life functionality (clearing canvas and saving the canvas as PNG file)
+
 enter_filename() - allows the user to name the file however they want (saves to Downloads folder)
+
 get_downloads_folder() - helps figure out where the Downloads folder is 
 
 ### requirements.txt
